@@ -195,7 +195,7 @@ namespace DiscordAudioController
                 {
                     try
                     {
-                        Console.WriteLine("Connecting to IPC...");
+                        Console.WriteLine("Trying to connect to Discord...");
                         await client.InitAsync();
                         IsDiscordAvailable = true;
                         // Authorize
@@ -230,7 +230,7 @@ namespace DiscordAudioController
                     }
                     catch (Exception)
                     {
-                        Console.WriteLine("Couldn't connect to Discord! Is it even running? Retrying...");
+                        Console.WriteLine("Couldn't connect to Discord! Is it even running? Retrying in 5s...");
                         Thread.Sleep(5000);
                     }
                 }

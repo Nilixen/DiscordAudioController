@@ -16,7 +16,7 @@ namespace DiscordAudioController
         public static SerialPort serialPort = new();
         public static Dictionary<string,string> GetSerialPortsName()
         {
-            Console.WriteLine("Scanning serial ports...");
+            //Console.WriteLine("Scanning serial ports...");
 
             using (var searcher = new ManagementObjectSearcher
                             ("SELECT * FROM WIN32_SerialPort"))
@@ -113,7 +113,7 @@ namespace DiscordAudioController
 
                 if (!serialPort.IsOpen)
                 {
-                    Console.WriteLine("Looking for device...");
+                    //Console.WriteLine("Looking for device...");
                     var port = SerialPortManager.GetComPortByDeviceIds(new SerialPortManager.DeviceIds() { PID = Program.config.device_pid, VID = Program.config.device_vid });
 
                     if (!string.IsNullOrEmpty(port))
@@ -128,7 +128,7 @@ namespace DiscordAudioController
                     }
                     else
                     {
-                        Console.WriteLine("Did not find the device");
+                        Console.WriteLine("Couldn't find the device! Is it even connected? Retrying in 5s...");
                     }
 
                     Thread.Sleep(5000);

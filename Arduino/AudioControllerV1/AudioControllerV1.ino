@@ -83,9 +83,12 @@ void ReceiveSerial() {
 int ConvertChar(char x){
   return (x == '1')?HIGH:LOW;
 } 
+int ConvertCharInv(char x){
+  return (x == '1')?LOW:HIGH;
+} 
 
 void DisplayData() {
     digitalWrite(mute_led,ConvertChar(receivedChars[0]));
     digitalWrite(deaf_led,ConvertChar(receivedChars[1]));
-    digitalWrite(mode_led,ConvertChar(receivedChars[2]));
+    digitalWrite(mode_led,ConvertCharInv(receivedChars[2]));
 }
