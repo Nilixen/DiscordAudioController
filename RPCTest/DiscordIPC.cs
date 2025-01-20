@@ -1,14 +1,11 @@
 ﻿using Dec.DiscordIPC;
 using Dec.DiscordIPC.Commands;
 using Dec.DiscordIPC.Events;
-using System;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using System.Web;
-using Windows.Media.Protection.PlayReady;
-using static Dec.DiscordIPC.Entities.VoiceSettings;
-using static DiscordAudioController.ConfigManager;
+
 
 namespace DiscordAudioController
 {
@@ -46,7 +43,9 @@ namespace DiscordAudioController
                 // todo refresh token when expired
                 try
                 {
-                    Console.WriteLine("Refreshing token!");
+                    ConsoleDisplay.Statuses.Discord.ServiceStatus = ConsoleDisplay.statusEnum.LOADING;
+                    ConsoleDisplay.Statuses.Discord.Message = "Refreshing token!";
+                    ConsoleDisplay.UpdateScreen();
 
                     DiscordIPC.AuthTokens authTokens = DiscordIPC.getRefreshToken();
 
@@ -55,8 +54,10 @@ namespace DiscordAudioController
                 }
                 catch (ErrorResponseException)
                 {
-                    
-                    Console.WriteLine("Failed to refresh the token! Relaunch the app");
+
+                    ConsoleDisplay.Statuses.Discord.ServiceStatus = ConsoleDisplay.statusEnum.FAILED;
+                    ConsoleDisplay.Statuses.Discord.Message = "Refrsh token failed!";
+                    ConsoleDisplay.UpdateScreen();
 
                     // if failed reset the token so it can be refreshed again!
                     Program.config.refresh_token = "";
@@ -80,7 +81,10 @@ namespace DiscordAudioController
                 }
                 catch (ErrorResponseException)
                 {
-                    Console.WriteLine("User denied authorization");
+
+                    ConsoleDisplay.Statuses.Discord.ServiceStatus = ConsoleDisplay.statusEnum.FAILED;
+                    ConsoleDisplay.Statuses.Discord.Message = "Auth failed!";
+                    ConsoleDisplay.UpdateScreen();
                     return false;
                 }
             }
@@ -195,7 +199,10 @@ namespace DiscordAudioController
                 {
                     try
                     {
-                        Console.WriteLine("Trying to connect to Discord...");
+                        ConsoleDisplay.Statuses.Discord.ServiceStatus = ConsoleDisplay.statusEnum.LOADING;
+                        ConsoleDisplay.Statuses.Discord.Message = "Trying to connect...";
+                        ConsoleDisplay.UpdateScreen();
+
                         await client.InitAsync();
                         IsDiscordAvailable = true;
                         // Authorize
@@ -213,7 +220,10 @@ namespace DiscordAudioController
                         }
                         catch (ErrorResponseException)
                         {
-                            Console.WriteLine("Something went wrong with the access token!");
+                            ConsoleDisplay.Statuses.Discord.ServiceStatus = ConsoleDisplay.statusEnum.FAILED;
+                            ConsoleDisplay.Statuses.Discord.Message = "Access token failed...";
+                            ConsoleDisplay.UpdateScreen();
+
                             if (!await DiscordIPC.AuthorizeAsync(client))
                             {
                                 return;
@@ -221,7 +231,10 @@ namespace DiscordAudioController
                             await DiscordIPC.Authenticate(client);
                         }
 
-                        Console.WriteLine("Connected to Discord IPC");
+                        ConsoleDisplay.Statuses.Discord.ServiceStatus = ConsoleDisplay.statusEnum.WORKING;
+                        ConsoleDisplay.Statuses.Discord.Message = "Connected!";
+                        ConsoleDisplay.UpdateScreen();
+
 
                         client.OnVoiceSettingsUpdate += VoiceSettingsHandler;
                         await client.SubscribeAsync(new VoiceSettingsUpdate.Args());
@@ -230,8 +243,14 @@ namespace DiscordAudioController
                     }
                     catch (Exception)
                     {
-                        Console.WriteLine("Couldn't connect to Discord! Is it even running? Retrying in 5s...");
-                        Thread.Sleep(5000);
+                        ConsoleDisplay.Statuses.Discord.ServiceStatus = ConsoleDisplay.statusEnum.FAILED;
+                        ConsoleDisplay.Statuses.Discord.Message = "Couldn't connect!";
+                        ConsoleDisplay.UpdateScreen();
+                        Thread.Sleep(1000);
+                        ConsoleDisplay.Statuses.Discord.ServiceStatus = ConsoleDisplay.statusEnum.LOADING;
+                        ConsoleDisplay.Statuses.Discord.Message = "Trying to connect...";
+                        ConsoleDisplay.UpdateScreen();
+                        Thread.Sleep(4000);
                     }
                 }
                 else
@@ -244,7 +263,9 @@ namespace DiscordAudioController
                     catch(Exception ex)
                     {
                         IsDiscordAvailable = false;
-                        Console.WriteLine($"IPC connection lost: {ex.Message} Waiting for Discord Client...");
+                        ConsoleDisplay.Statuses.Serial.ServiceStatus = ConsoleDisplay.statusEnum.FAILED;
+                        ConsoleDisplay.Statuses.Serial.Message = "Connection lost...";
+                        ConsoleDisplay.UpdateScreen();
                         client.OnVoiceSettingsUpdate -= VoiceSettingsHandler;
                         client.Dispose();
                     }

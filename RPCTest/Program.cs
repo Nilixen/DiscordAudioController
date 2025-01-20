@@ -1,13 +1,4 @@
 ﻿
-
-using Dec.DiscordIPC;
-using Dec.DiscordIPC.Commands;
-using Dec.DiscordIPC.Events;
-using System.IO.Ports;
-using System.Text.Json;
-using System.Runtime.InteropServices;
-using Windows.Media.Protection.PlayReady;
-
 namespace DiscordAudioController
 {
 
@@ -35,6 +26,7 @@ namespace DiscordAudioController
                     case ConsoleKey.UpArrow:
                         {
                             bool loop = true;
+                            ConsoleDisplay.SupressUpdates = true;
                             do
                             {
                                 Console.WriteLine("1. Set Client Id");
@@ -69,6 +61,8 @@ namespace DiscordAudioController
                                         {
                                             loop = false;
                                             Console.WriteLine("Exited!");
+                                            ConsoleDisplay.SupressUpdates = false;
+                                            ConsoleDisplay.UpdateScreen();
                                             break;
                                         }
                                     default:

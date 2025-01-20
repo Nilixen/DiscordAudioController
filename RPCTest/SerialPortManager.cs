@@ -1,13 +1,6 @@
-﻿using Dec.DiscordIPC.Commands;
-using Dec.DiscordIPC.Entities;
-using System.IO.Ports;
+﻿using System.IO.Ports;
 using System.Management;
-using System.Runtime.Versioning;
-using System.Text.Json;
-using System.Threading;
-using Windows.Data.Xml.Dom;
-using Windows.Media.Protection.PlayReady;
-using static DiscordAudioController.ConfigManager;
+
 
 namespace DiscordAudioController
 {
@@ -118,20 +111,29 @@ namespace DiscordAudioController
 
                     if (!string.IsNullOrEmpty(port))
                     {
-                        Console.WriteLine($"Found device on port: {port}");
                         Open(ref serialPort, port);
                         serialPort.DataReceived += SerialRead;
                         // send current settings
                         SendVoiceSettings();
 
+                        ConsoleDisplay.Statuses.Serial.ServiceStatus = ConsoleDisplay.statusEnum.WORKING;
+                        ConsoleDisplay.Statuses.Serial.Message = "Connected!";
+                        ConsoleDisplay.UpdateScreen();
+
                         continue;
                     }
                     else
                     {
-                        Console.WriteLine("Couldn't find the device! Is it even connected? Retrying in 5s...");
+                        ConsoleDisplay.Statuses.Serial.ServiceStatus = ConsoleDisplay.statusEnum.FAILED;
+                        ConsoleDisplay.Statuses.Serial.Message = "Couldn't find the device!";
+                        ConsoleDisplay.UpdateScreen();
+                        Thread.Sleep(1000);
+                        ConsoleDisplay.Statuses.Serial.ServiceStatus = ConsoleDisplay.statusEnum.LOADING;
+                        ConsoleDisplay.Statuses.Serial.Message = "Looking for the device!";
+                        ConsoleDisplay.UpdateScreen();
                     }
 
-                    Thread.Sleep(5000);
+                    Thread.Sleep(4000);
                 }
             }
         }
@@ -143,7 +145,6 @@ namespace DiscordAudioController
             {
                 if (line[0] == '1')
                 {
-                    Console.WriteLine("Toggle Voice");
                     var payload = new
                     {
                         cmd = "SET_VOICE_SETTINGS",
@@ -160,7 +161,6 @@ namespace DiscordAudioController
                 }
                 if (line[1] == '1')
                 {
-                    Console.WriteLine("Toggle Deaf");
                     var payload = new
                     {
                         cmd = "SET_VOICE_SETTINGS",
@@ -179,7 +179,6 @@ namespace DiscordAudioController
                 }
                 if (line[2] == '1')
                 {
-                    Console.WriteLine("Toggle Mode");
 
                     var payload = new
                     {
